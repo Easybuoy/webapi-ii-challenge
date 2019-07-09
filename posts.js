@@ -102,11 +102,35 @@ router.get("/", async (req, res) => {
     if (posts) {
       return res.json({ status: "success", data: posts });
     }
-    return res.status(404).json({ status: "error", message: "No post found" });
+    return res
+      .status(404)
+      .json({ status: "error", message: "Posts not found" });
   } catch (error) {
     return res
       .status(500)
       .json({ status: "error", message: "Error getting posts" });
   }
 });
+
+/**
+ * METHOD: GET
+ * ROUTE: /api/posts/:id
+ * PURPOSE: Get a single post
+ */
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const post = await db.findById(id);
+
+    if (post) {
+      return res.json({ status: "success", data: post });
+    }
+    return res.status(404).json({ status: "error", message: "Post not found" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Error getting post" });
+  }
+});
+
 module.exports = router;
