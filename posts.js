@@ -60,7 +60,7 @@ router.post("/:id/comments", async (req, res) => {
     }
 
     const post = await db.findById(id);
-    if (post === null) {
+    if (post.length === 0) {
       return res
         .status(404)
         .json({ status: "error", message: "Post not found" });
@@ -151,15 +151,51 @@ router.get("/:id/comments", async (req, res) => {
 
     const comments = await db.findPostComments(id);
     if (comments.length > 0) {
-        return res.json({status: 'success', data: comments})
+      return res.json({ status: "success", data: comments });
     }
-    return res.status(404).json({ status: "error", message: "Comments not found" });
-
-
+    return res
+      .status(404)
+      .json({ status: "error", message: "Comments not found" });
   } catch (error) {
     return res
       .status(500)
       .json({ status: "error", message: "Error getting comments" });
+  }
+});
+
+/**
+ * METHOD: DELETE
+ * ROUTE: /api/posts/:id/
+ * PURPOSE: Delete a post
+ */
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const post = await db.findById(id);
+
+
+    if (post.length === 0) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Post not found" });
+    }
+
+    const deletedPost = await db.remove(id);
+
+    if (deletedPost === 1) {
+      return res.json({
+        status: "success",
+        message: "Post deleted successfully"
+      });
+    }
+
+    return res
+      .status(500)
+      .json({ status: "error", message: "Error deleting post" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Error deleting post" });
   }
 });
 
