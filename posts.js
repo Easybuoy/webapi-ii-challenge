@@ -99,7 +99,7 @@ router.get("/", async (req, res) => {
   try {
     const posts = await db.find();
 
-    if (posts) {
+    if (posts.length > 0) {
       return res.json({ status: "success", data: posts });
     }
     return res
@@ -122,7 +122,7 @@ router.get("/:id", async (req, res) => {
     const { id } = req.params;
     const post = await db.findById(id);
 
-    if (post) {
+    if (post.length > 0) {
       return res.json({ status: "success", data: post });
     }
     return res.status(404).json({ status: "error", message: "Post not found" });
@@ -130,6 +130,36 @@ router.get("/:id", async (req, res) => {
     return res
       .status(500)
       .json({ status: "error", message: "Error getting post" });
+  }
+});
+
+/**
+ * METHOD: GET
+ * ROUTE: /api/posts/:id/comments
+ * PURPOSE: Get all posts for a comment
+ */
+router.get("/:id/comments", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await db.findById(id);
+    if (post === null) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Post not found" });
+    }
+
+    const comments = await db.findPostComments(id);
+    if (comments.length > 0) {
+        return res.json({status: 'success', data: comments})
+    }
+    return res.status(404).json({ status: "error", message: "Comments not found" });
+
+
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Error getting comments" });
   }
 });
 
