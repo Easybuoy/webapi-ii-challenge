@@ -11,7 +11,7 @@ const db = require("./data/db");
 router.post("/", async (req, res) => {
   try {
     const { title, contents } = req.body;
-    console.log(title, contents);
+
     if (!title || !contents) {
       return res.status(400).json({
         status: "error",
@@ -173,7 +173,6 @@ router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     const post = await db.findById(id);
 
-
     if (post.length === 0) {
       return res
         .status(404)
@@ -196,6 +195,48 @@ router.delete("/:id", async (req, res) => {
     return res
       .status(500)
       .json({ status: "error", message: "Error deleting post" });
+  }
+});
+
+/**
+ * METHOD: PUT
+ * ROUTE: /api/posts/:id/
+ * PURPOSE: Update a post
+ */
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, contents } = req.body;
+
+    if (!title || !contents) {
+      return res.status(400).json({
+        status: "error",
+        message: "Please provide title and contents for the post."
+      });
+    }
+
+    const post = await db.findById(id);
+    if (post.length === 0) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Post not found" });
+    }
+
+    const updatedPost = await db.update(id, { title, contents });
+    if (updatedPost === 1) {
+      return res.json({
+        status: "success",
+        message: "Post updated successfully"
+      });
+    }
+
+    return res
+      .status(500)
+      .json({ status: "error", message: "Error updating post" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Error updating post" });
   }
 });
 
